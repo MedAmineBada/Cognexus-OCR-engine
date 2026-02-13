@@ -7,6 +7,7 @@ from PIL import Image, ImageEnhance, ImageFilter
 from fastapi import FastAPI, UploadFile, File
 from api.main_router import router
 from config import llm
+from config.env_config import env
 
 app = FastAPI()
 app.include_router(router)
@@ -14,7 +15,7 @@ app.include_router(router)
 
 def preprocess_image_to_data_uri(
     image_bytes: bytes,
-    max_side: int = 1024
+    max_side: int = 1440
 ) -> str:
         pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         pil_img.thumbnail((max_side, max_side), Image.LANCZOS)
@@ -29,7 +30,7 @@ def preprocess_image_to_data_uri(
 async def scan(file: UploadFile = File(...)):
     image_bytes = await file.read()
 
-    data_uri = preprocess_image_to_data_uri(image_bytes, max_side=1440)
+    data_uri = preprocess_image_to_data_uri(image_bytes, max_side=env.MAX_SIZE)
 
     response = llm.create_chat_completion(
         messages=[

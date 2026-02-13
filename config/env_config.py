@@ -11,6 +11,7 @@ class EnvFile(BaseSettings):
 
     HFTOKEN: str
 
+    MAX_SIZE:int
     MODE: str
     CORES: int
     class Config:
