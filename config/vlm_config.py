@@ -21,7 +21,7 @@ chat_handler = Llava16ChatHandler(
     verbose=False,
 )
 
-llm = Llama.from_pretrained(
+VLM = Llama.from_pretrained(
     repo_id=repo_id,
     filename=env.MODEL_BASE_FILE,
     chat_handler=chat_handler,

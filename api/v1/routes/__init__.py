@@ -1,0 +1,1 @@
+from .ocr_routes import router as ocr_router

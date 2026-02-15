@@ -4,7 +4,7 @@ import io
 from PIL import Image
 
 
-def preprocess_image_to_data_uri(
+def preprocess_image(
         image_bytes: bytes,
         max_side: int = 1440
 ) -> str:

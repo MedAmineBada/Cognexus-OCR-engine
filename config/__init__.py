@@ -1,1 +1,1 @@
-from .vlm_config import llm
+from .vlm_config import VLM
