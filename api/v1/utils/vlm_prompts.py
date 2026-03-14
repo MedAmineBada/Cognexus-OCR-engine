@@ -1,3 +1,8 @@
+"""
+This module defines the system and user prompts for the Vision-Language Model (VLM)
+used in the OCR process, specifically for handling mixed text and mathematical expressions.
+"""
+
 SYSTEM_PROMPT_MIXED = """\
 You are a handwriting OCR assistant. Transcribe all text from images.
 
@@ -26,8 +31,16 @@ Output: Solve <m>ax^2 + bx + c = 0</m> where <m>a \\neq 0</m>
 
 Return ONLY the transcription with <m> tags. Nothing else.\
 """
+"""
+System prompt for the VLM when performing OCR on mixed content (text and math).
+It provides instructions on how to identify and format mathematical expressions using LaTeX and <m> tags.
+"""
 
 USER_PROMPT_MIXED = """\
 Transcribe everything in this image. Wrap each math expression in <m>...</m> tags.
 Return only the transcription.\
+"""
+"""
+User prompt for the VLM when performing OCR on mixed content (text and math).
+It instructs the VLM to transcribe all content and wrap math expressions in <m> tags.
 """

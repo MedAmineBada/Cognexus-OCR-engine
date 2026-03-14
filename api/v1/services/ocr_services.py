@@ -1,3 +1,7 @@
+"""
+This module provides the core OCR service functionality, including image
+preprocessing, VLM interaction, and result processing.
+"""
 import json
 
 from fastapi import UploadFile
@@ -5,11 +9,25 @@ from starlette.responses import Response
 
 from api.v1.utils.image_util import preprocess_image
 from api.v1.utils.math_ocr_utils import extract_math
-from api.v1.vlm_prompts import SYSTEM_PROMPT_MIXED, USER_PROMPT_MIXED
+from api.v1.utils.vlm_prompts import SYSTEM_PROMPT_MIXED, USER_PROMPT_MIXED
 from config import VLM
-from config.env_config import env
+from config import env
 
 async def ocr_scan(file: UploadFile):
+    """
+    Performs OCR on an uploaded image file.
+
+    This function reads an uploaded image, preprocesses it, sends it to the
+    Vision-Language Model (VLM) for OCR, extracts mathematical expressions,
+    and returns the results in a JSON response.
+
+    Args:
+        file (UploadFile): The image file to be scanned.
+
+    Returns:
+        Response: A JSON response containing the extracted text, math expressions,
+                  and token usage statistics.
+    """
     image_bytes = await file.read()
     data_uri = preprocess_image(image_bytes, max_side=env.MAX_SIDE)
 

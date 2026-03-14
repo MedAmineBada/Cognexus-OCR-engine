@@ -1,26 +1,46 @@
+"""
+Utility functions for processing and extracting mathematical expressions from OCR output.
+"""
 import re
 
 def clean_latex(latex: str) -> str:
-    """Fix double backslashes the LLM sometimes produces."""
+    """
+    Fixes common issues in LaTeX strings, specifically double backslashes
+    that might be produced by the LLM.
+
+    Args:
+        latex (str): The raw LaTeX string.
+
+    Returns:
+        str: The cleaned LaTeX string.
+    """
     latex = re.sub(r"\\\\([a-zA-Z])", r"\\\1", latex)
     latex = latex.replace("\\\\", "\\")
     return latex.strip()
 
 def extract_math(raw_text: str) -> dict:
     """
-    Extract <m>...</m> regions into indexed placeholders.
-    Handles malformed tags gracefully.
+    Extracts mathematical expressions enclosed in <m>...</m> tags from a given text.
+    It cleans the extracted LaTeX, filters out non-math content, and replaces
+    math expressions with placeholders in the main text.
+
+    Args:
+        raw_text (str): The input text containing potential math expressions
+                        enclosed in <m> and </m> tags.
+
+    Returns:
+        dict: A dictionary containing:
+            - "text" (str): The text with math expressions replaced by placeholders
+                            like "$math[0]$".
+            - "math" (list): A list of cleaned LaTeX strings for each extracted
+                             math expression.
     """
-    # First, remove any broken/unclosed tags
-    # Count opens and closes
     opens = [m.start() for m in re.finditer(r"<m>", raw_text)]
     closes = [m.start() for m in re.finditer(r"</m>", raw_text)]
 
-    # Only process well-formed pairs
     math_expressions = []
     result_text = raw_text
 
-    # Find all properly matched <m>...</m> pairs (no nesting)
     pattern = re.compile(r"<m>((?:(?!</?m>).)+?)</m>", re.DOTALL)
     matches = list(pattern.finditer(raw_text))
 
@@ -29,7 +49,6 @@ def extract_math(raw_text: str) -> dict:
         cleaned = re.sub(r"</?m>", "", raw_text)
         return {"text": cleaned.strip(), "math": []}
 
-    # Replace from last to first to preserve positions
     for match in reversed(matches):
         latex = clean_latex(match.group(1))
         # Skip if it's mostly English words (LLM error)
@@ -52,10 +71,8 @@ def extract_math(raw_text: str) -> dict:
                       f"$math[{idx}]$" +
                       result_text[match.end():])
 
-    # Reverse the math list since we processed backwards
     math_expressions.reverse()
 
-    # Re-index placeholders
     current = 0
     def reindex(m):
         nonlocal current
@@ -65,7 +82,6 @@ def extract_math(raw_text: str) -> dict:
 
     result_text = re.sub(r"\$math\[\d+\]\$", reindex, result_text)
 
-    # Clean up any remaining broken tags
     result_text = re.sub(r"</?m>", "", result_text)
 
     # Clean whitespace
