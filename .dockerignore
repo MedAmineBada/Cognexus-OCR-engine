@@ -9,8 +9,8 @@ __pycache__
 *.pyd
 .Python
 
-models/
-
+models/*
+!models/.gitkeep
 # Virtual environments
 venv/
 .venv/

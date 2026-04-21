@@ -4,4 +4,5 @@
 __pycache__
 VLM/*
 !VLM/.gitkeep
-models/
+models/*
+!models/.gitkeep
