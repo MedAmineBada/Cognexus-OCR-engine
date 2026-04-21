@@ -9,12 +9,22 @@ from config import env
 os.environ["HF_TOKEN"] = env.HFTOKEN
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
 
+# Define cache directory relative to project root
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)  # Go up from config/ to ocrengine/
+CACHE_DIR = os.path.join(PROJECT_ROOT, "models")
+
+# Ensure models directory exists
+os.makedirs(CACHE_DIR, exist_ok=True)
+
 repo_id = env.MODEL_BASE
 
 print(f"{repo_id} - {env.MODEL_BASE_MMPROJ} started downloading")
 mmproj_path = hf_hub_download(
     repo_id=repo_id,
     filename=env.MODEL_BASE_MMPROJ,
+    cache_dir=CACHE_DIR,
 )
 print(f"{repo_id} - {env.MODEL_BASE_MMPROJ} finished downloading")
 
@@ -33,5 +43,6 @@ VLM = Llama.from_pretrained(
     n_gpu_layers=0 if env.MODE == "cpu" else -1,
     n_threads=env.CORES,
     verbose=True,
+    cache_dir=CACHE_DIR,
 )
 print(f"{repo_id} - {env.MODEL_BASE_FILE} finished downloading")
