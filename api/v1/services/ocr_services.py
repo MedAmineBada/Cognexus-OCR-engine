@@ -2,6 +2,7 @@
 This module provides the core OCR service functionality, including image
 preprocessing, VLM interaction, and result processing.
 """
+
 import json
 from typing import List
 
@@ -10,11 +11,11 @@ from starlette.responses import Response
 
 from api.v1.utils.image_util import preprocess_image
 from api.v1.utils.math_ocr_utils import extract_math
-from api.v1.utils.vlm_prompts import SYSTEM_PROMPT_MIXED, USER_PROMPT_MIXED
 from config import VLM
 from config import env
 
-async def ocr_scan(files: List[UploadFile]):
+
+async def ocr_scan(files: List[UploadFile], system_prompt: str, user_prompt: str):
     results = []
 
     for file in files:
@@ -23,12 +24,12 @@ async def ocr_scan(files: List[UploadFile]):
 
         response = VLM.create_chat_completion(
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT_MIXED},
+                {"role": "system", "content": system_prompt},
                 {
                     "role": "user",
                     "content": [
                         {"type": "image_url", "image_url": {"url": data_uri}},
-                        {"type": "text", "text": USER_PROMPT_MIXED},
+                        {"type": "text", "text": user_prompt},
                     ],
                 },
             ],
@@ -55,6 +56,4 @@ async def ocr_scan(files: List[UploadFile]):
         results.append(payload)
 
     raw_json = json.dumps(results, ensure_ascii=False)
-    # raw_json = raw_json.replace("\\\\", "\\")
-
     return Response(content=raw_json, media_type="application/json")
