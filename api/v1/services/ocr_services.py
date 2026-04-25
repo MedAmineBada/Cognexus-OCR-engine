@@ -1,28 +1,45 @@
-"""
-This module provides the core OCR service functionality, including image
-preprocessing, VLM interaction, and result processing.
-"""
-
 import json
-from typing import List
+from typing import List, Dict, Any
 
 from fastapi import UploadFile
 from starlette.responses import Response
 
 from api.v1.utils.image_util import preprocess_image
 from api.v1.utils.math_ocr_utils import extract_math
-from config import VLM
-from config import env
+from config import VLM, env
+
+"""
+Core business logic for OCR processing services.
+
+This module coordinates image preprocessing, Vision-Language Model (VLM)
+interaction, and extraction of mathematical content.
+"""
 
 
-async def ocr_scan(files: List[UploadFile], system_prompt: str, user_prompt: str):
-    results = []
+async def ocr_scan(
+    files: List[UploadFile], system_prompt: str, user_prompt: str
+) -> Response:
+    """
+    Processes uploaded files through the OCR engine.
+
+    Iterates through each file, applies image preprocessing, invokes the VLM
+    for text generation, and extracts structured mathematical expressions.
+
+    Args:
+        files: List of uploaded image or document files.
+        system_prompt: System-level context for the VLM.
+        user_prompt: Specific query or instructions for the OCR task.
+
+    Returns:
+        A Response object containing a JSON-encoded list of OCR results per file.
+    """
+    results: List[Dict[str, Any]] = []
 
     for file in files:
-        image_bytes = await file.read()
-        data_uri = preprocess_image(image_bytes, max_side=env.MAX_SIDE)
+        image_bytes: bytes = await file.read()
+        data_uri: str = preprocess_image(image_bytes, max_side=env.MAX_SIDE)
 
-        response = VLM.create_chat_completion(
+        response: Dict[str, Any] = VLM.create_chat_completion(
             messages=[
                 {"role": "system", "content": system_prompt},
                 {
@@ -39,11 +56,11 @@ async def ocr_scan(files: List[UploadFile], system_prompt: str, user_prompt: str
             top_p=1.0,
         )
 
-        raw_content = response["choices"][0]["message"]["content"]
-        usage = response.get("usage", {})
-        extracted = extract_math(raw_content)
+        raw_content: str = response["choices"][0]["message"]["content"]
+        usage: Dict[str, int] = response.get("usage", {})
+        extracted: Dict[str, Any] = extract_math(raw_content)
 
-        payload = {
+        payload: Dict[str, Any] = {
             "filename": file.filename,
             "text": extracted["text"],
             "math": extracted["math"],
@@ -55,5 +72,5 @@ async def ocr_scan(files: List[UploadFile], system_prompt: str, user_prompt: str
         }
         results.append(payload)
 
-    raw_json = json.dumps(results, ensure_ascii=False)
+    raw_json: str = json.dumps(results, ensure_ascii=False)
     return Response(content=raw_json, media_type="application/json")

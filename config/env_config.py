@@ -1,38 +1,34 @@
-"""
-This module defines the environment variables used by the application
-and loads them using Pydantic's BaseSettings.
-"""
 from pydantic_settings import BaseSettings
+
+"""
+Environment-based configuration management.
+
+This module leverages Pydantic to load and validate application
+settings from environment variables or a .env file.
+"""
 
 
 class EnvFile(BaseSettings):
     """
-    Represents the environment variables loaded from the .env file.
-    """
-    MODEL_BASE: str
-    """The base model name for the VLM."""
-    MODEL_BASE_FILE: str
-    """The file path for the base model."""
-    MODEL_BASE_MMPROJ: str
-    """The mmproj file path for the base model."""
+    Schema for environment variables and application settings.
 
-    MODEL_DETECT: str
-    """The detection model name."""
-    MODEL_DETECT_FILE: str
-    """The file path for the detection model."""
+    This class defines the expected configuration parameters, their types,
+    and sources from the environment.
+    """
+
+    MODEL_BASE: str
+    MODEL_BASE_FILE: str
+    MODEL_BASE_MMPROJ: str
 
     HFTOKEN: str
-    """Hugging Face authentication token."""
 
-    MAX_SIDE:int
-    """Maximum side length for image preprocessing."""
+    MAX_SIDE: int
 
     MODE: str
-    """The application's running mode (e.g., development, production)."""
     CORES: int
-    """The number of CPU cores to utilize."""
-    class Config:
-        env_file = ".env"
 
-env = EnvFile()
-"""An instance of EnvFile containing the loaded environment variables."""
+    class Config:
+        env_file: str = ".env"
+
+
+env: EnvFile = EnvFile()
