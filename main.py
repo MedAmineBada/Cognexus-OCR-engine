@@ -5,7 +5,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from api.v1.utils.exceptions import http_exception_handler, exception_handler
-from api.v1_router import router
+from api.v1.v1_router import router
 
 """
 Entry point for the OCR Engine FastAPI application.
