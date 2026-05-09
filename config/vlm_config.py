@@ -72,7 +72,7 @@ VLM: Llama = Llama.from_pretrained(
     chat_handler=chat_handler,
     n_ctx=4096,
     n_batch=2048,
-    n_gpu_layers=0 if env.MODE == "cpu" else -1,
+    n_gpu_layers=-1 if env.MODE == "gpu" else 0,
     n_threads=env.CORES,
     verbose=True,
     cache_dir=CACHE_DIR,
